@@ -648,6 +648,7 @@ class BuildIso:
         if not os.path.exists(chain):
             chain = "/usr/lib/syslinux/chain.c32"
 
+        #复制文件到isolinuxdir
         files = [isolinuxbin, menu, chain]
         for f in files:
             if not os.path.exists(f):
@@ -665,6 +666,7 @@ class BuildIso:
         else:
             mkisofs_opts = mkisofs_opts.strip()
 
+        #采用mkisofs生成可boot的iso
         # removed --quiet
         cmd = "mkisofs -o %s %s -r -b isolinux/isolinux.bin -c isolinux/boot.cat" % (iso, mkisofs_opts)
         cmd = cmd + " -no-emul-boot -boot-load-size 4"

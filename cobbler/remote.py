@@ -143,6 +143,7 @@ class CobblerXMLRPCInterface:
             webdir = "/srv/www/cobbler/"
 
         def runner(self):
+            #构建iso文件
             self.remote.api.build_iso(
                 self.options.get("iso", webdir + "/pub/generated.iso"),
                 self.options.get("profiles", None),

@@ -1143,7 +1143,7 @@ def linkfile(src, dst, symlink_ok=False, cache=True, api=None, logger=None):
     # we couldn't hardlink and we couldn't symlink so we must copy
     copyfile(src, dst, api=api, logger=logger)
 
-
+#实现文件及目录copy
 def copyfile(src, dst, api=None, logger=None):
     try:
         if logger is not None:

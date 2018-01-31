@@ -6,6 +6,7 @@ import views
 # from cobbler_web.contrib import admin
 # admin.autodiscover()
 
+#url及处理对应关系
 urlpatterns = patterns(
     '',
     (r'^$', views.index),

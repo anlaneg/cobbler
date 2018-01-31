@@ -43,12 +43,14 @@ cp.read("/etc/cobbler/modules.conf")
 def load_modules(module_path=mod_path, blacklist=None):
     logger = clogger.Logger()
 
+    #识别可能的module文件
     filenames = glob.glob("%s/*.py" % module_path)
     filenames += glob.glob("%s/*.pyc" % module_path)
     filenames += glob.glob("%s/*.pyo" % module_path)
 
     mods = set()
 
+    #跳过__init__.py，重复名称
     for fn in filenames:
         basename = os.path.basename(fn)
         if basename == "__init__.py":
@@ -65,12 +67,15 @@ def load_modules(module_path=mod_path, blacklist=None):
         mods.add(modname)
 
         try:
+            #载入模块
             blip = __import__("modules.%s" % (modname), globals(), locals(), [modname])
             if not hasattr(blip, "register"):
                 if not modname.startswith("__init__"):
+                    #非预期的文件，报错
                     errmsg = _("%(module_path)s/%(modname)s is not a proper module")
                     print errmsg % {'module_path': module_path, 'modname': modname}
                 continue
+            #注册module
             category = blip.register()
             if category:
                 MODULE_CACHE[modname] = blip
@@ -81,6 +86,7 @@ def load_modules(module_path=mod_path, blacklist=None):
             logger.info('Exception raised when loading module %s' % modname)
             log_exc(logger)
 
+    #返回载入的所有module,按分类划分module
     return (MODULE_CACHE, MODULES_BY_CATEGORY)
 
 

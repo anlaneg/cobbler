@@ -84,6 +84,7 @@ class YumGen:
             infile_data = infile_h.read()
             infile_h.close()
             outfile = None  # disk output only
+            #传入模板文件内容，要求生成实际配置
             totalbuf += self.templar.render(infile_data, blended, outfile, None)
             totalbuf += "\n\n"
 

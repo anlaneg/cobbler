@@ -129,6 +129,7 @@ class Templar:
             repstr = server
         search_table["http_server"] = repstr
 
+        #变量在此处将展开，用于生成定制的配置文件
         for x in search_table.keys():
             if type(x) == str:
                 data_out = data_out.replace("@@%s@@" % str(x), str(search_table[str(x)]))
@@ -138,6 +139,7 @@ class Templar:
             data_out = data_out.lstrip()
 
         # if requested, write the data out to a file
+        # 将生成的配置写入磁盘
         if out_path is not None:
             utils.mkdir(os.path.dirname(out_path))
             fd = open(out_path, "w+")

@@ -64,13 +64,18 @@ def glob(*args, **kwargs):
 
 def gen_build_version():
     builddate = time.asctime()
-    cmd = subprocess.Popen(["/usr/bin/git", "log", "--format=%h%n%ad", "-1"], stdout=subprocess.PIPE)
-    data = cmd.communicate()[0].strip()
-    if cmd.returncode == 0:
-        gitstamp, gitdate = data.split("\n")
+
+    gitloc = "/usr/bin/git"
+    gitdate = "?"
+    gitstamp = "?"
+    if not os.path.isfile(gitloc):
+        print("warning: " + gitloc + " not found")
     else:
-        gitdate = "?"
-        gitstamp = "?"
+        cmd = subprocess.Popen([gitloc, "log", "--format=%h%n%ad", "-1"],
+                               stdout=subprocess.PIPE)
+        data = cmd.communicate()[0].strip()
+        if cmd.returncode == 0:
+            gitstamp, gitdate = data.split("\n")
 
     fd = open(os.path.join(OUTPUT_DIR, "version"), "w+")
     config = ConfigParser()
@@ -506,6 +511,19 @@ class savestate(statebase):
         self._copy(os.path.join(etcpath, 'rsync.template'), self.statepath)
 
 
+def parse_os_release():
+    out = {}
+    osreleasepath = "/etc/os-release"
+    if os.path.exists(osreleasepath):
+        with open(osreleasepath, 'rb') as os_release:
+            out.update(
+                map(
+                    lambda line: [it.strip('"\n') for it in line.split('=', 1)],
+                    [line for line in os_release.xreadlines() if not line.startswith('#') and '=' in line]
+                )
+            )
+    return out
+
 #####################################################################
 # # Actual Setup.py Script ###########################################
 #####################################################################
@@ -520,8 +538,13 @@ if __name__ == "__main__":
     libpath = "/var/lib/cobbler/"
     logpath = "/var/log/"
     statepath = "/tmp/cobbler_settings/devinstall"
+    os_release = parse_os_release()
+    suse_release = (
+        os.path.exists("/etc/SuSE-release") or
+        os_release.get('ID_LIKE', '').lower() == 'suse'
+    )
 
-    if os.path.exists("/etc/SuSE-release"):
+    if suse_release:
         webconfig = "/etc/apache2/conf.d"
         webroot = "/srv/www/"
         http_user = "wwwrun"
@@ -692,6 +715,7 @@ if __name__ == "__main__":
             ("%scobbler/distro_mirror/config" % webroot, []),
             ("%scobbler/links" % webroot, []),
             ("%scobbler/misc" % webroot, []),
+            ("%scobbler/svc" % webroot, []),
             ("%scobbler/pub" % webroot, []),
             ("%scobbler/rendered" % webroot, []),
             ("%scobbler/images" % webroot, []),

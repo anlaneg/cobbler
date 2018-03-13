@@ -238,7 +238,7 @@ class BuildIso:
                 append_line += " ks=%s" % data["autoinstall"]
 
             if dist.breed in ["ubuntu", "debian"]:
-                append_line += " auto-install/enable=true url=%s netcfg/disable_dhcp=true" % data["autoinstall"]
+                append_line += " auto-install/enable=true url=%s netcfg/disable_autoconfig=true" % data["autoinstall"]
                 if "proxy" in data and data["proxy"] != "":
                     append_line += " mirror/http/proxy=%s" % data["proxy"]
                 # hostname is required as a parameter, the one in the preseed is not respected
@@ -578,7 +578,7 @@ class BuildIso:
     def run(self, iso=None, buildisodir=None, profiles=None, systems=None, distro=None, standalone=None, airgapped=None, source=None, exclude_dns=None, mkisofs_opts=None):
 
         # the airgapped option implies standalone
-        if airgapped is not None and not standalone:
+        if airgapped is True:
             standalone = True
 
         # the distro option is for stand-alone builds only
@@ -648,8 +648,20 @@ class BuildIso:
         if not os.path.exists(chain):
             chain = "/usr/lib/syslinux/chain.c32"
 
+        ldlinux = "/usr/share/syslinux/ldlinux.c32"
+        if not os.path.exists(ldlinux):
+            ldlinux = "/usr/lib/syslinux/ldlinux.c32"
+
+        libcom32 = "/usr/share/syslinux/libcom32.c32"
+        if not os.path.exists(libcom32):
+            ldlinux = "/usr/lib/syslinux/libcom32.c32"
+
+        libutil = "/usr/share/syslinux/libutil.c32"
+        if not os.path.exists(libutil):
+            ldlinux = "/usr/lib/syslinux/libutil.c32"
+
         #复制文件到isolinuxdir
-        files = [isolinuxbin, menu, chain]
+        files = [isolinuxbin, menu, chain, ldlinux, libcom32, libutil]
         for f in files:
             if not os.path.exists(f):
                 utils.die(self.logger, "Required file not found: %s" % f)

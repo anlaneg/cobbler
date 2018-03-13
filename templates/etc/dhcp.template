@@ -34,6 +34,8 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
                   filename "grub/grub-x86.efi";
           } else if option pxe-system-type = 00:07 {
                   filename "grub/grub-x86_64.efi";
+          } else if option pxe-system-type = 00:09 {
+                  filename "grub/grub-x86_64.efi";
           } else {
                   filename "pxelinux.0";
           }
@@ -52,6 +54,11 @@ group {
             #set iface = $dhcp_tags[$dhcp_tag][$mac]
             #set mac_dhcp_format = netaddr.EUI($mac,dialect=netaddr.mac_unix)
     host $iface.name {
+        #if $iface.interface_type == "infiniband":
+        option dhcp-client-identifier = $mac;
+        #else
+        hardware ethernet $mac_dhcp_format;
+        #end if
         hardware ethernet $mac_dhcp_format;
         #if $iface.ip_address:
         fixed-address $iface.ip_address;
